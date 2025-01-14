@@ -1,103 +1,70 @@
-<!DOCTYPE HTML>
-<!--
-	Alpha by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-	<head>
-		<title>Contact - Alpha by HTML5 UP</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
-	<body class="is-preload">
-		<div id="page-wrapper">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Vestigia</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header id="header">
+    <a href="index.html"><h1>Vestigia</h1></a>
+    <button class="nav-toggle" aria-label="Toggle navigation">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+    <nav id="nav">
+      <ul class="collapsed">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="#" class="button">Sign Up</a></li>
+      </ul>
+    </nav>
+  </header>
 
-			<!-- Header -->
-				<header id="header">
-					<h1><a href="index.html">Alpha</a> by HTML5 UP</h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="index.html">Home</a></li>
-							<li>
-								<a href="#" class="icon solid fa-angle-down">Layouts</a>
-								<ul>
-									<li><a href="generic.html">Generic</a></li>
-									<li><a href="contact.html">Contact</a></li>
-									<li><a href="elements.html">Elements</a></li>
-									<li>
-										<a href="#">Submenu</a>
-										<ul>
-											<li><a href="#">Option One</a></li>
-											<li><a href="#">Option Two</a></li>
-											<li><a href="#">Option Three</a></li>
-											<li><a href="#">Option Four</a></li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-							<li><a href="#" class="button">Sign Up</a></li>
-						</ul>
-					</nav>
-				</header>
+  <!-- Background Image Section -->
+  <section id="background-image">
+    <div class="image-overlay">
+      <h2>Contact Us</h2>
+      <p>We’re here to answer your questions and hear your feedback.</p>
+    </div>
+  </section>
 
-			<!-- Main -->
-				<section id="main" class="container medium">
-					<header>
-						<h2>Contact Us</h2>
-						<p>Tell us what you think about our little operation.</p>
-					</header>
-					<div class="box">
-						<form method="post" action="#">
-							<div class="row gtr-50 gtr-uniform">
-								<div class="col-6 col-12-mobilep">
-									<input type="text" name="name" id="name" value="" placeholder="Name" />
-								</div>
-								<div class="col-6 col-12-mobilep">
-									<input type="email" name="email" id="email" value="" placeholder="Email" />
-								</div>
-								<div class="col-12">
-									<input type="text" name="subject" id="subject" value="" placeholder="Subject" />
-								</div>
-								<div class="col-12">
-									<textarea name="message" id="message" placeholder="Enter your message" rows="6"></textarea>
-								</div>
-								<div class="col-12">
-									<ul class="actions special">
-										<li><input type="submit" value="Send Message" /></li>
-									</ul>
-								</div>
-							</div>
-						</form>
-					</div>
-				</section>
+  <!-- Main Content -->
+  <main id="main">
+    <div class="container">
+      <h2>Get in Touch</h2>
+      <p>
+        Whether you’re a traveler, historian, or enthusiast, we’d love to hear from you. Please reach out with any inquiries, suggestions, or feedback to help us improve Vestigia and enhance the user experience.
+      </p>
+      <div id="contact-form">
+        <form action="https://api.web3forms.com/submit" method="POST">
 
-			<!-- Footer -->
-				<footer id="footer">
-					<ul class="icons">
-						<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-						<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-						<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-						<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
-						<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
-						<li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
-					</ul>
-					<ul class="copyright">
-						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
-				</footer>
+          <input type="hidden" name="access_key" value="b41d4d8f-1c5a-4c6e-8077-376b707dfdc1">
+      
+          <input type="text" name="name" placeholder="Enter Your Name Here" class="contactInput" required>
+          <input type="email" name="email" placeholder="Enter Your Email Here" class="contactInput" required>
+          <textarea name="message" placeholder="Enter Your Message Here" class="contactInput" required></textarea>
+          <br><button type="submit" class="messageButton">Submit Form</button>
+      </form>
+      </div>
+    </div>
+  </main>
 
-		</div>
+  <!-- Footer -->
+  <footer id="footer">
+    <p>&copy; 2025 Vestigia. All Rights Reserved.</p>
+  </footer>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.dropotron.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+  <!-- JavaScript for Mobile Navigation -->
+  <script>
+    const navToggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('#nav ul');
+    navToggle.addEventListener('click', () => {
+      nav.classList.toggle('collapsed');
+    });
+  </script>
+</body>
 </html>
