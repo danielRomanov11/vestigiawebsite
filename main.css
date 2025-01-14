@@ -18,9 +18,7 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  color: var(--main-color);
-}
+
 
 .logo {
   width: 50px;
@@ -66,10 +64,7 @@ a:hover {
   font-size: 17px;
 }
 
-.topNav a:hover {
-  background-color: var(--main-color);
-  color: var(--light-color);
-}
+
 
 .topNav a.activePage {
   background-color: var(--highlight-color);
@@ -162,10 +157,6 @@ a:hover {
   margin-right: auto;
 }
 
-#banner .button:hover {
-  background-color: #1e1e1e;
-  color: var(--light-color);
-}
 
 /* Main Content */
 #main {
