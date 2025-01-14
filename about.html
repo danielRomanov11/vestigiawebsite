@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>About - Vestigia</title>
     <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
       .container p {
         text-align: left;
@@ -14,17 +15,20 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header id="header">
-    <h1><a href="index.html">Vestigia</a></h1>
-    <nav id="nav">
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="signup.html" class="button">Sign Up</a></li>
-      </ul>
-    </nav>
-  </header>
+  <div id="myTopNav" class="topNav">
+    <a href="index.html"><img class="logo" src="images/vestigiaLogo.png"></a>
+    <span class="site-name"><a href="index.html" class="nameLink">Vestigia</a></span>
+    <div class="nav-links">
+      <a></a>
+      <a href="index.html" class="links">Home</a>
+      <a href="about.html" class="links  activePage">About</a>
+      <a href="contact.html" class="links">Contact</a>
+      <a href="signup.html" class="links button">Sign Up</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </div>
+</div>
 
   <!-- Background Image Section (Same as Home) -->
   <section id="background-image">
@@ -71,6 +75,6 @@
   <footer id="footer">
     <p>&copy; 2025 Vestigia | All rights reserved.</p>
   </footer>
-
+  <script src="main.js"></script>
 </body>
 </html>

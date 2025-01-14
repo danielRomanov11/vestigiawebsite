@@ -5,24 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up For Updates - Vestigia</title>
   <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-  <!-- Header -->
-  <header id="header">
-    <a href="index.html"><h1>Vestigia</h1></a>
-    <button class="nav-toggle" aria-label="Toggle navigation">
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
-    </button>
-    <nav id="nav">
-      <ul class="collapsed">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+  <div id="myTopNav" class="topNav">
+    <a href="index.html"><img class="logo" src="images/vestigiaLogo.png"></a>
+    <span class="site-name"><a href="index.html" class="nameLink">Vestigia</a></span>
+    <div class="nav-links">
+      <a></a>
+      <a href="index.html" class="links">Home</a>
+      <a href="about.html" class="links">About</a>
+      <a href="contact.html" class="links">Contact</a>
+      <a href="signup.html" class="links button activePage">Sign Up</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </div>
+</div>
 
   <!-- Background Image Section -->
   <section id="background-image">
@@ -55,12 +54,6 @@
   </footer>
 
   <!-- JavaScript for Mobile Navigation -->
-  <script>
-    const navToggle = document.querySelector('.nav-toggle');
-    const nav = document.querySelector('#nav ul');
-    navToggle.addEventListener('click', () => {
-      nav.classList.toggle('collapsed');
-    });
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
