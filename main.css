@@ -68,7 +68,7 @@ a:hover {
 }
 
 #nav a:hover {
-  color: var(--main-color);
+  color: var(--light-color);
 }
 
 /* Sign-up Button */
