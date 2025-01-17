@@ -1,29 +1,42 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <title>Vestigia - Discover Your Cultural Journey</title>
+    <title>Vestigia - Find Your Next Adventure</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="main.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
   </head>
   <body>
-
-    <div id="myTopNav" class="topNav">
-        <a href="index.html"><img class="logo" src="images/vestigiaLogo.png"></a>
-        <span class="site-name"><a href="index.html" class="nameLink">Vestigia</a></span>
-        <div class="nav-links">
-          <a></a>
-          <a href="index.html" class="links activePage">Home</a>
-          <a href="about.html" class="links">About</a>
-          <a href="contact.html" class="links">Contact</a>
-          <a href="signup.html" class="links button">Sign Up</a>
-          <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-            <i class="fa fa-bars"></i>
-          </a>
+    <div class="navbar">
+      <div class="logo">
+        <img src="images/vestigiaLogo.png" alt="Vestigia Logo">
+      </div>
+      
+      <div class="hamburger-menu">
+        <button class="hamburger-btn">&#9776;</button>
+        <div class="mobile-menu">
+          <button class="close-btn">&times;</button>
+          <ul class="mobile-links">
+            <li><a href="index.html" class="nav-link"><i class="fa fa-home"></i>Home</a></li>
+            <li><a href="about.html" class="nav-link"><i class="fa fa-info-circle"></i>About</a></li>
+            <li><a href="contact.html" class="nav-link"><i class="fa fa-envelope"></i>Contact</a></li>
+            <li><a href="signup.html" class="nav-link"><i class="fa fa-user-plus"></i>Sign Up</a></li>
+          </ul>
         </div>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item"><a href="index.html" class="nav-link active"><i class="fa fa-home"></i></a><span class="tooltip">Home</span></li>
+        <li class="nav-item"><a href="about.html" class="nav-link"><i class="fa fa-info-circle"></i></a><span class="tooltip">About</span></li>
+        <li class="nav-item"><a href="contact.html" class="nav-link"><i class="fa fa-envelope"></i></a><span class="tooltip">Contact</span></li>
+        <li class="nav-item"><a href="signup.html" class="nav-link signup-btn"><i class="fa fa-user-plus"></i>Sign Up</a><span class="tooltip">Sign Up</span></li>
+      
+      </ul>
     </div>
-
+    
+    
     <!-- Background Image Section (Below Navbar) -->
     <section id="background-image">
       <div class="image-overlay">
