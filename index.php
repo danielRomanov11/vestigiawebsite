@@ -1,0 +1,94 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['name']) && isset($_COOKIE['username'])) {
+    $_SESSION['name'] = $_COOKIE['username'];
+}
+?>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Vestigia - Find Your Next Adventure</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
+</head>
+<body style="font-family: 'Open Sans', sans-serif;">
+  <?php include "navbar.php"; ?>
+  
+  <?php if(isset($_SESSION['name'])): ?>
+    <p>Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?>!</p>
+  <?php else: ?>
+    <p>You are not logged in.</p>
+  <?php endif; ?>
+
+  <!-- Background Image Section (Below Navbar) -->
+  <section id="background-image">
+    <div class="image-overlay">
+      <h2>Explore the World with Vestigia</h2>
+      <p>Discover iconic cultural landmarks with ease</p>
+    </div>
+  </section>
+
+  <!-- Banner Section -->
+  <section id="banner">
+    <h2>Welcome to Vestigia</h2>
+    <p>Embark on a journey to explore the world's most iconic cultural and historical landmarks.</p>
+    <a href="signup.php" class="button">Get In Line for Development Updates</a>
+  </section>
+
+  <!-- Main Content -->
+  <section id="main">
+    <div class="container">
+      <h2>Why Take a Chance on Vestigia?</h2>
+      <h4><i>Because, after all, we aren't TripAdvisor or Expedia</i></h4>
+      <p>Vestigia offers curated itineraries, detailed transportation options, and a community of cultural explorers.</p>
+      <div class="features">
+        <div class="feature">
+          <img src="images/calendarIcon.png" alt="Customizable Itinerary" class="feature-icon">
+          <h3>Customizable Itineraries</h3>
+          <p>Design your cultural adventure with personalized itineraries that match your interests.</p>
+        </div>
+        <div class="feature">
+          <img src="images/mapIcon.png" alt="Easy Access" class="feature-icon">
+          <h3>Easy Access</h3>
+          <p>Get quick information on the best routes, public transport, and activities available.</p>
+        </div>
+        <div class="feature">
+          <img src="images/commIcon.png" alt="Community" class="feature-icon">
+          <h3>Community Engagement</h3>
+          <p>Join a community of cultural explorers and share your experiences.</p>
+        </div>
+        <div class="feature">
+          <img src="images/transportIcon.png" alt="Transportation Finder" class="feature-icon">
+          <h3>Transportation Finder</h3>
+          <p>Get the best routes and public transport options for easy access to cultural landmarks.</p>
+        </div>
+        <div class="feature">
+          <img src="images/reviewIcon.png" alt="User Reviews" class="feature-icon">
+          <h3>User Reviews</h3>
+          <p>Read and share insightful reviews on cultural experiences and events.</p>
+        </div>
+        <div class="feature">
+          <img src="images/cultureIcon.png" alt="Cultural Events" class="feature-icon">
+          <h3>Cultural Events</h3>
+          <p>Stay updated on festivals, exhibitions, and cultural events happening around you.</p>
+        </div>
+      </div>
+      <h5><a href="about.php">To find out more about our project, click here</a></h5>
+    </div>      
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>&copy; 2025 Vestigia | All rights reserved.</p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

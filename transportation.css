@@ -1,0 +1,124 @@
+.transportationHead {
+    margin-top: 100px;
+    text-align: left; /* Google Flights aligns text to the left */
+    padding: 20px;
+    border-radius: 8px; /* Slightly less rounded corners */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    width: 90%; /* Wider container */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.transportationHead h4 {
+    color: #ffd700; /* Dark grey, typical Google color */
+    margin-bottom: 20px;
+    font-size: 1.5em; /* Slightly larger font size */
+}
+
+.transportForm {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Ensure switch button is in the middle */
+    grid-template-rows: auto auto; /* Two rows: one for inputs, one for the button */
+    grid-template-areas:
+        "departure switch destination"
+        "date type trip";
+    gap: 10px; /* Spacing between grid items */
+    align-items: center; /* Align items to the center of the container */
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin: 0; /* Remove default margins */
+    width: 100%; /* Take full width of the grid cell */
+}
+
+.input-group label {
+    text-align: left;
+    margin-bottom: 5px;
+    color: #ffd700; /* Medium grey label color */
+    font-size: 0.85em; /* Slightly smaller font size for labels */
+}
+
+.input-group input[type="text"],
+.input-group input[type="date"],
+.input-group input[type="number"],
+.input-group select {
+    padding: 10px;
+    border: 1px solid #d4d4d4; /* Light grey border */
+    border-radius: 4px; /* Less rounded corners */
+    font-size: 1em;
+    color: #202124; /* Dark grey text color */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.input-group input[type="text"]:focus,
+.input-group input[type="date"]:focus,
+.input-group input[type="number"]:focus,
+.input-group select:focus {
+    border-color: #861818; /* Google blue focus color */
+    outline: none;
+    box-shadow: 0 0 0 1px #861818; /* Subtle blue shadow */
+}
+
+.search-btn {
+    padding: 12px 24px;
+    background-color: #861818; /* Google blue */
+    color: #ffd700;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+     justify-self: start; /* Align button to the start of the grid cell */
+}
+
+.search-btn:hover {
+    background-color: #701414; /* Darker blue on hover */
+}
+
+/* Style for the switch button */
+#switchButton {
+    background-color: #861818;
+    color: #ffd700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px; /* Adjust to match the input height */
+    width: 42px; /* Make width equal to height */
+    font-size: 1em; /* Adjust as needed */
+    margin: 0; /* Remove all margins */
+    padding: 0; /* Remove default padding */
+    grid-area: switch;
+    align-self: center; /* Center the switch button vertically */
+}
+
+#switchButton:hover {
+    background-color: #701414;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .transportationHead {
+        margin-top: 80px;
+        width: 95%;
+    }
+
+    .transportForm {
+        grid-template-columns: 1fr; /* Stack items vertically on smaller screens */
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .search-btn {
+        width: auto; /* Reset width */
+        justify-self: stretch; /* Make button full width on smaller screens */
+    }
+}

@@ -1,0 +1,60 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['name']) && isset($_COOKIE['username'])) {
+    $_SESSION['name'] = $_COOKIE['username'];
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportation Finder - Vestigia</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="transportation.css">
+    <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
+</head>
+<body>
+    <?php include "navbar.php"; ?>
+
+    <div class="transportationHead">
+        <h4>Transportation Finder</h4>
+        <form class="transportForm">
+            <div class="input-group" id="departure">
+                <label for="departure">From</label>
+                <input type="text" id="departure" name="departure" placeholder="Enter departure city" required>
+            </div>
+            <div class="input-group" id="switch">
+                <button id="switchButton">
+                    <i class="fas fa-exchange-alt" style="color: #ffd700;"></i>
+                </button>
+            </div>
+            <div class="input-group" id="destination">
+                <label for="destination">To</label>
+                <input type="text" id="destination" name="destination" placeholder="Enter destination city" required>
+            </div>
+            <div class="input-group" id="date">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="input-group" id="type">
+                <label for="mode">Transport Mode</label>
+                <select id="mode" name="mode">
+                    <option value="flight">Flight</option>
+                    <option value="train">Train</option>
+                    <option value="bus">Bus</option>
+                </select>
+            </div>
+            <div class="input-group" id="trip">
+                <label for="mode">Trip Type</label>
+                <select id="mode" name="mode">
+                    <option value="one-way">One-way</option>
+                    <option value="round-trip">Round-trip</option>
+                </select>
+            </div>
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+    </div>
+</body>
+</html>

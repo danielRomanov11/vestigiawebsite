@@ -1,0 +1,189 @@
+:root {
+    --dark-color: #262626;  /* Dark Background */
+    --main-color: #861818;  /* Main Red Color */
+    --highlight-color: #ffd700; /* New Gold highlight */
+    --light-color: #f5f5f5; /* Light gray text */
+    --error-color: red; /* Error color */
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif; /* Apply Open Sans font */
+}
+
+html{
+    color: var(--light-color);
+    text-align: center;
+}
+body{
+    min-height: 100vh;
+    background-image: url(images/signupBackground.jpg);
+    background-size: cover;
+    background-position: right;
+    overflow: hidden;
+}
+.wrapper{
+    box-sizing: border-box;
+    background-color: #262626;
+    min-height: 100vh; /* Ensure the wrapper goes all the way to the bottom of the screen */
+    width: max(40%);
+    padding: 10px;
+    border-radius: 0 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+form{
+    width: min(400px, 100%);
+    margin-top: 20px;
+    margin-bottom: 20px; /* Adjusted margin to fit on screen */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+form > div{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+form input{
+    border-radius: 10px;
+    padding: 1em;
+    border: 2px solid transparent; /* Set initial border to transparent */
+    background-color: var(--main-color);
+    color: var(--highlight-color);
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 150ms ease, border-color 150ms ease; /* Transition only background-color and border-color */
+}
+
+form input::placeholder {
+    color: var(--highlight-color); /* Set placeholder text color to highlight color */
+}
+
+form input:hover::placeholder {
+    color: var(--main-color); /* Change placeholder text color to main color on hover */
+}
+
+.logo{
+    width: 50%;
+    height: auto;
+    margin-bottom: -20px;
+    max-height: 20vh; /* Ensure the logo fits within the screen */
+    margin-top: -0.5em; /* Adjusted margin to fit on screen */
+}
+
+form input:hover{
+    background-color: var(--highlight-color);
+    border-color: black; /* Change border color on hover */
+    color: var(--main-color);
+}
+
+form input:focus{
+    outline: none;
+}
+
+form button{
+    margin-top: 10px;
+    border: none;
+    border-radius: 1000px;
+    padding: .85em 4em;
+    background-color: var(--main-color);
+    color: var(--highlight-color);
+    font-weight: 600;
+    cursor: pointer; /* Added to change the cursor to pointer */
+}
+
+form button:hover{
+    background-color: var(--highlight-color);
+    color: var(--main-color);
+}
+
+.social-login {
+    margin-top: 10px;
+    border: none;
+    border-radius: 1000px;
+    padding: 1em 1.5em; /* Adjusted padding to make buttons smaller */
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between logo and text */
+    white-space: nowrap; /* Ensure text stays on one line */
+}
+
+.google-login {
+    background-color: #db4437;
+    color: white;
+}
+
+.google-login:hover {
+    background-color: #c33d2e;
+    color: var(--highlight-color);
+}
+
+.facebook-login {
+    background-color: #3b5998;
+    color: white;
+}
+
+.facebook-login:hover {
+    background-color: #334d84;
+    color: var(--highlight-color);
+}
+
+.social-login-container {
+    display: flex;
+    gap: 10px; /* Space between the buttons */
+}
+
+a:hover{
+    color: var(--light-color);
+    text-decoration: underline;
+}
+
+a{
+    color: var(--highlight-color);
+}
+
+.forgot-password {
+    color: var(--highlight-color);
+    text-decoration: none; /* Remove text decoration */
+    margin-top: 10px;
+}
+
+.forgot-password:hover {
+    color: var(--light-color);
+}
+
+@media (max-width: 1100px) {
+    .wrapper {
+        width: min(600px, 100%);
+        border-radius: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        background-image: none; /* Hide background image on smaller screens */
+        background-color: var(--dark-color); /* Set a fallback background color */
+    }
+}
+
+form div.incorrect input{
+    color: red;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+form input.error {
+    border-color: var(--error-color); /* Change border color to error color */
+    font-style: italic; /* Italicize the text */
+}

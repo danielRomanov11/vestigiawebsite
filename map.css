@@ -1,0 +1,125 @@
+body {
+    background-image: url('images/mapBackground.jpg');
+}
+
+.custom-search-container {
+    display: flex;
+    background: white;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.custom-search-input {
+    border: none;
+    outline: none;
+    padding: 5px;
+    width: 180px;
+}
+
+.custom-search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+}
+
+.custom-search-button:hover {
+    color: #861818; /* Vestigia's red */
+}
+
+#places {
+    margin-left: 50px;
+    color: #262626;
+}
+
+#placesList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#placesList li {
+    background: #f9f9f9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#placesList li .button-container {
+    display: flex;
+    gap: 10px;
+}
+
+#placesList li button {
+    background: #861818;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#placesList li button:hover {
+    background: #ffd700;
+    color: #262626;
+}
+
+.directions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
+}
+
+.directions-container input {
+    border: none;
+    outline: none;
+    padding: 5px;
+    width: 180px;
+    margin-bottom: 5px;
+}
+
+.directions-container button {
+    background: #861818;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.directions-container button:hover {
+    background: #ffd700;
+    color: #262626;
+}
+
+.suggestions-container {
+  position: absolute;
+  margin-top: 50px;
+  margin-left: 60px;
+  background: #262626;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 200px;
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  color: #ffd700;
+}
+
+.suggestion-item:hover {
+  background: gray;
+}
+

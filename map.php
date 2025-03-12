@@ -1,0 +1,1115 @@
+<?php
+session_start();
+?>
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Map - Vestigia</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+     <link rel="stylesheet" href="map.css">
+     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+     <style>
+       /* Add this CSS to change the cursor to a grab icon */
+       #placesList li {
+         cursor: grab;
+       }
+       #placesList li:active {
+         cursor: grabbing;
+       }
+     </style>
+  </head>
+  <body style="font-family: 'Open Sans', sans-serif;">
+  <?php
+  include "navbar.php";
+  ?>
+
+  <!-- Main Content (Pitch Project Placeholder Entries) -->
+  <section id="main">
+    <div class="container">
+      <br><BR>
+      <h1 style="color: black;">Map</h1>
+    
+    <!-- Directions Box -->
+    <div id="directions-box" style="margin-bottom: 20px;">
+      <input type="text" id="startLocation" list="startLocations" placeholder="Select or type start location..." style="padding: 5px; border: 2px solid #861818; border-radius: 5px 0 0 5px; outline: none; margin-bottom: 5px;">
+      <datalist id="startLocations">
+        <!-- Options will be dynamically populated -->
+      </datalist>
+      <button id="switchButton" style="padding: 5px 10px; background-color: #861818; color: white; border: 2px solid #861818; border-radius: 5px; cursor: pointer; margin: 0 5px;">
+        <i class="fas fa-exchange-alt" style="color: #ffd700;"></i>
+      </button>
+      <input type="text" id="endLocation" list="endLocations" placeholder="Select or type end location..." style="padding: 5px; border: 2px solid #861818; border-radius: 5px 0 0 5px; outline: none; margin-bottom: 5px;">
+      <datalist id="endLocations">
+        <!-- Options will be dynamically populated -->
+      </datalist>
+      <select id="transportMode" style="padding: 5px; border: 2px solid #861818; border-radius: 5px; outline: none; margin-bottom: 5px;">
+        <option value="driving-car">Car</option>
+        <option value="cycling-regular">Bike</option>
+        <option value="foot-walking">Walking</option>
+        <option value="driving-hgv">Public Transport</option>
+        <option value="flying">Plane</option>
+      </select>
+      <button id="directionsButton" style="padding: 5px 10px; background-color: #861818; color: white; border: 2px solid #861818; border-radius: 5px; cursor: pointer;">
+        Get Directions
+      </button>
+    </div>
+
+    <div id="map" style="width: 100%; height: 400px; position: relative;">
+      <div id="suggestions" class="suggestions-container"></div>
+    </div>
+
+<script>
+  const apiKey = "5b3ce3597851110001cf6248298dfe6c5ab14101a9f15d53ce5de996"; // Replace with your actual OpenRouteService API key
+
+  let tempMarkers = []; // Array to store temporary markers
+
+  function getRoute(start, end, transportMode) {
+    const url = `https://api.openrouteservice.org/v2/directions/${transportMode}?api_key=${apiKey}&start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.features) {
+          const routeCoords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+
+          // Clear existing routes and temporary markers
+          map.eachLayer(layer => {
+            if (layer instanceof L.Polyline && !layer._popup) {
+              map.removeLayer(layer);
+            }
+          });
+          tempMarkers.forEach(marker => map.removeLayer(marker));
+          tempMarkers = [];
+
+          // Add route to the map
+          const routePolyline = L.polyline(routeCoords, { color: '#861818', weight: 10, interactive: true }).addTo(map);
+
+          // Pan and zoom the map to fit the route
+          map.fitBounds(routePolyline.getBounds());
+
+          // Add markers to start and end points if they are not user-defined markers or POIs
+          if (!start.isUserMarker && !start.isPOI) {
+            const startMarker = L.marker([start.lat, start.lng], {icon: L.icon({
+              iconUrl: 'images/marker.svg',
+              iconSize: [20, 32],
+              iconAnchor: [10, 32],
+              popupAnchor: [1, -34],
+            })}).addTo(map).bindPopup("Start Location");
+            tempMarkers.push(startMarker);
+          }
+          if (!end.isUserMarker && !end.isPOI) {
+            const endMarker = L.marker([end.lat, end.lng], {icon: L.icon({
+              iconUrl: 'images/marker.svg',
+              iconSize: [20, 32],
+              iconAnchor: [10, 32],
+              popupAnchor: [1, -34],
+            })}).addTo(map).bindPopup("End Location");
+            tempMarkers.push(endMarker);
+          }
+
+          // Add popup to the route line
+          routePolyline.on('click', function(e) {
+            const googleMapsMode = transportMode === 'driving-car' ? 'driving' :
+                                   transportMode === 'cycling-regular' ? 'bicycling' :
+                                   transportMode === 'foot-walking' ? 'walking' :
+                                   transportMode === 'driving-hgv' ? 'transit' : 'driving';
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${start.lat},${start.lng}&destination=${end.lat},${end.lng}&travelmode=${googleMapsMode}`;
+            L.popup({ className: 'custom-popup' })
+              .setLatLng(e.latlng)
+              .setContent(`
+                <div style="text-align: center;">
+                  <a href="${googleMapsUrl}" target="_blank" style="color: #ffd700; size=10px;">Start your route now</a><br><br>
+                  
+                  <button onclick="removeRoute()" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer; margin-top: 10px;size=10px">Remove Route</button>
+                </div>
+              `)
+              .openOn(map);
+          });
+
+          // Ensure the routePolyline is interactive
+          routePolyline.bringToFront();
+        } else {
+          alert("No route found.");
+        }
+      })
+      .catch(error => console.error("Error fetching route:", error));
+  }
+
+  function getDirections() {
+    const startLocationName = document.getElementById("startLocation").value;
+    const endLocationName = document.getElementById("endLocation").value;
+    const transportMode = document.getElementById("transportMode").value;
+
+    let startMarker, endMarker;
+
+    if (startLocationName === "Current Location" && userMarker) {
+        startMarker = { lat: userMarker.getLatLng().lat, lng: userMarker.getLatLng().lng };
+    } else {
+        const startUserMarker = userMarkers.find(marker => marker.name === startLocationName);
+        if (startUserMarker) {
+            startMarker = { lat: startUserMarker.lat, lng: startUserMarker.lng, isUserMarker: true };
+        } else {
+            const startPOI = poiMarkers.find(poi => poi.name === startLocationName);
+            if (startPOI) {
+                startMarker = { lat: startPOI.lat, lng: startPOI.lng, isPOI: true };
+            }
+        }
+    }
+
+    if (endLocationName === "Current Location" && userMarker) {
+        endMarker = { lat: userMarker.getLatLng().lat, lng: userMarker.getLatLng().lng };
+    } else {
+        const endUserMarker = userMarkers.find(marker => marker.name === endLocationName);
+        if (endUserMarker) {
+            endMarker = { lat: endUserMarker.lat, lng: endUserMarker.lng, isUserMarker: true };
+        } else {
+            const endPOI = poiMarkers.find(poi => poi.name === endLocationName);
+            if (endPOI) {
+                endMarker = { lat: endPOI.lat, lng: endPOI.lng, isPOI: true };
+            }
+        }
+    }
+
+    if (!startMarker || !endMarker) {
+        // If either location wasn't found in markers, try geocoding
+        if (!startMarker) {
+            fetchLocationCoordinates(startLocationName, (coords) => {
+                startMarker = coords;
+                if (!endMarker) {
+                    fetchLocationCoordinates(endLocationName, (coords) => {
+                        endMarker = coords;
+                        getRoute(startMarker, endMarker, transportMode);
+                    });
+                } else {
+                    getRoute(startMarker, endMarker, transportMode);
+                }
+            });
+        } else if (!endMarker) {
+            fetchLocationCoordinates(endLocationName, (coords) => {
+                endMarker = coords;
+                getRoute(startMarker, endMarker, transportMode);
+            });
+        }
+    } else {
+        getRoute(startMarker, endMarker, transportMode);
+    }
+}
+
+  function fetchLocationCoordinates(locationName, callback) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.length > 0) {
+          const { lat, lon } = data[0];
+          callback({ lat: parseFloat(lat), lng: parseFloat(lon) });
+        } else {
+          alert(`Location "${locationName}" not found.`);
+        }
+      })
+      .catch(error => console.error("Error fetching location coordinates:", error));
+  }
+
+  // Function to switch start and end locations
+  function switchLocations() {
+    const startLocation = document.getElementById("startLocation");
+    const endLocation = document.getElementById("endLocation");
+    const temp = startLocation.value;
+    startLocation.value = endLocation.value;
+    endLocation.value = temp;
+  }
+
+  // Separate marker arrays
+  const poiMarkers = [
+    { lat: 41.8902, lng: 12.4922, name: "Colosseum", description: "The world's largest amphitheater, in Rome.", photos: ["images/colosseum1.jpg", "images/colosseum2.jpg"] },
+    { lat: 48.8584, lng: 2.2945, name: "Eiffel Tower", description: "A wrought-iron lattice tower in Paris.", photos: ["images/eiffel1.jpg", "images/eiffel2.jpg"] },
+    { lat: 51.1789, lng: -1.8262, name: "Stonehenge", description: "A prehistoric monument in Wiltshire.", photos: ["images/stonehenge1.jpg"] },
+    { lat: 40.6892, lng: -74.0445, name: "Statue of Liberty", description: "A colossal neoclassical sculpture on Liberty Island." },
+    { lat: 41.88825, lng: 12.48658, name: "Roman Forum", description: "The Roman Empire's ancient government ruins on Palatine Hill."},
+    { lat: 40.74846, lng: 14.48305, name: "Pompeii", description: "Famous Roman city buried by ash and pumice after the eruption of Mt. Vesuvius." },
+    { lat: 29.89785, lng: -81.31148, name: "Castillo de San Marcos", description: "Oldest masonry fort in the United States"},
+    { lat: 45.46418, lng: 9.19068, name: "Duomo di Milano", description: "Magnificent Gothic Cathedral with ancient relics and statues." },
+    { lat: 55.75241, lng: 37.62284, name: "Cathedral of Vasily the Blessed", description: "A Russian Orthodox cathedral that combines eleven churches into a single ensemble." },
+    { lat: 37.97149, lng: 23.72662, name: "Parthenon", description: "Ancient Greek Doric Temple dedicated to the goddess Athena." },
+    { lat: 41.383889, lng: 2.176389, name: "Cathedral of the Holy Cross and Saint Eulalia", description: "A Gothic Cathedral that acts as the seat of the Barcelona Archbishop." },
+    { lat: 41.40369, lng: 2.17433, name: "Sagrada Familia", description: "The largest unfinished Catholic church in the world." },
+    { lat: 45.4337, lng: 12.3405, name: "Doge's Palace", description: "Gothic palace that used to be the home of the leader of the Venetian Republic."},
+    { lat: 45.43452, lng: 12.33981, name: "Basilica di San Marco", description: "The lead religious building in Venice." },
+    { lat: 45.43370, lng: 12.33712, name: "Museo di Correr", description: "Museum with Venetian artifacts and paintings."},
+    { lat:  45.43341, lng: 12.33934, name: "Biblioteca Nazionale Marciana", description: "Lavish library with a vast collection of manuscripts." },
+    { lat: 48.85325, lng: 2.34903, name: "Notre-Dame de Paris", description: "French Gothic Cathedral dedicated to the Virgin Mary." },
+    { lat: 48.86111, lng: 2.33532, name: "Musee du Louvre", description: "French national museum housed under a large glass and metal pyramid." },
+    { lat: 48.85605, lng: 2.31268, name: "Hotel des Invalides", description: "A complex of French museums and monuments, as well as the home of Napoleon's tomb." },
+    { lat: 41.90221, lng: 12.45727, name: "Vatican City", description: "The smallest country in the world and the home of the Catholic Church." },
+    { lat: 41.90090, lng: 12.48334, name: "Fontana di Trevi", description: "Roman Fountain that we didnt go to"},
+    { lat: 40.74846, lng: 14.48305, name: "Pompeii", description: "Famous Roman city buried by ash and pumice after the eruption of Mt. Vesuvius." },
+    { lat: 29.89785, lng: -81.31148, name: "Castillo de San Marcos", description: "Oldest masonry fort in the United States"},
+    { lat: 45.46418, lng: 9.19068, name: "Duomo di Milano", description: "Magnificent Gothic Cathedral with ancient relics and statues." },
+    { lat: 55.75241, lng: 37.62284, name: "Cathedral of Vasily the Blessed", description: "A Russian Orthodox cathedral that combines eleven churches into a single ensemble." },
+    { lat: 37.97149, lng: 23.72662, name: "Parthenon", description: "Ancient Greek Doric Temple dedicated to the goddess Athena." },
+    { lat: 41.383889, lng: 2.176389, name: "Cathedral of the Holy Cross and Saint Eulalia", description: "A Gothic Cathedral that acts as the seat of the Barcelona Archbishop." },
+    { lat: 41.40369, lng: 2.17433, name: "Sagrada Familia", description: "The largest unfinished Catholic church in the world." },
+    { lat: 45.4337, lng: 12.3405, name: "Doge's Palace", description: "Gothic palace that used to be the home of the leader of the Venetian Republic."},
+    { lat: 45.43452, lng: 12.33981, name: "Basilica di San Marco", description: "The lead religious building in Venice." },
+    { lat: 45.43370, lng: 12.33712, name: "Museo di Correr", description: "Museum with Venetian artifacts and paintings."},
+    { lat:  45.43341, lng: 12.33934, name: "Biblioteca Nazionale Marciana", description: "Lavish library with a vast collection of manuscripts." },
+  ];
+
+  let userMarkers = [];
+  let savedUserMarkers = [];
+  let searchMarker;
+  let markers = [];
+
+  // Function to add POI markers to the map
+  function addPOIMarkers() {
+    const poiIcon = L.icon({
+      iconUrl: 'images/poiMarker.svg', // Ensure POI marker uses the correct icon
+      iconSize: [20, 32],
+      iconAnchor: [10, 32],
+      popupAnchor: [1, -34],
+    });
+
+    poiMarkers.forEach(poi => {
+      const marker = L.marker([poi.lat, poi.lng], { icon: poiIcon }).addTo(map);
+      const photosHtml = poi.photos ? poi.photos.map(photo => `<img src="${photo}" alt="${poi.name}" style="width: 100px; height: auto; margin: 5px;">`).join('') : '';
+      marker.bindPopup(`
+        <div style="text-align: center;">
+          <b style="color: #ffd700;">${poi.name}</b><br />
+          <span style="color: #ffd700; font-size: 0.9em;">${poi.description}</span>
+          <div style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+            ${photosHtml}
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button onclick="addToUserList(${poi.lat}, ${poi.lng}, '${poi.name}', '${poi.description}')" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Add to My List</button>
+            <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(poi.name)}" target="_blank" style="color: #ffd700;">Wiki</a>
+          </div>
+        </div>
+      `, { className: 'custom-popup' }).openPopup();
+    });
+  }
+
+  // Function to add POI to the user's list
+  function addToUserList(lat, lng, name, description) {
+    const poiIcon = L.icon({
+      iconUrl: 'images/poiMarker.svg', // Keep using POI marker icon
+      iconSize: [20, 32],
+      iconAnchor: [10, 32],
+      popupAnchor: [1, -34],
+    });
+
+    const marker = L.marker([lat, lng], { icon: poiIcon }).addTo(map);
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <b style="color: #ffd700;">${name}</b><br />
+        <span style="color: #ffd700; font-size: 0.9em;">${description}</span>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <button onclick="removeFromUserList(${lat}, ${lng})" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Delete</button>
+          <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(name)}" target="_blank" style="color: #ffd700;">Wiki</a>
+        </div>
+      </div>
+    `, { className: 'custom-popup' }).openPopup();
+
+    userMarkers.push({ lat, lng, name, description, marker, isPOI: true });
+    saveUserMarkers(); // Save markers to local storage
+    updatePlacesList(); // Update the saved places list
+    updateDropdowns();
+    updatePlacesList(); // Ensure the saved places list is updated
+  }
+
+  // Function to remove POI marker from the list below the map without deleting it from the map
+  function removeFromUserList(lat, lng) {
+    const marker = userMarkers.find(marker => marker.lat === lat && marker.lng === lng);
+    if (marker) {
+      marker.marker.bindPopup(`
+        <div style="text-align: center;">
+          <b style="color: #ffd700;">${marker.name}</b><br />
+          <span style="color: #ffd700; font-size: 0.9em;">${marker.description}</span>
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button onclick="addToUserList(${lat}, ${lng}, '${marker.name}', '${marker.description}')" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Add to My List</button>
+            <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(marker.name)}" target="_blank" style="color: #ffd700;">Wiki</a>
+          </div>
+        </div>
+      `, { className: 'custom-popup' }).openPopup();
+    }
+    userMarkers = userMarkers.filter(marker => marker.lat !== lat || marker.lng !== lng);
+    saveUserMarkers();
+    updatePlacesList();
+  }
+
+  // Function to add custom user marker to the map and to the markers array
+  function addCustomUserMarker(lat, lng, name, placeName) {
+    const userIcon = L.icon({
+      iconUrl: 'images/marker.svg', // Use the red marker icon for user-added markers
+      iconSize: [20, 32], // Smaller size
+      iconAnchor: [10, 32],
+      popupAnchor: [1, -34],
+    });
+
+    const marker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <b style="color: #ffd700;">${name}</b><br />
+        <b style="color: #ffd700;">${placeName}</b><br />
+        <button onclick="removeFromUserList(${lat}, ${lng})" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Delete</button>
+      </div>
+    `, { className: 'custom-popup' }).openPopup();
+
+    userMarkers.push({ lat, lng, name, placeName, marker }); // Changed from markers to userMarkers
+    updatePlacesList();
+    updateDropdowns();
+    saveUserMarkers(); // Changed from saveMarkers
+  }
+
+  // Function to remove custom user marker from the map and the list
+  function removeCustomMarker(lat, lng, button) {
+    const marker = userMarkers.find(marker => marker.lat === lat && marker.lng === lng);
+    if (marker) {
+      map.removeLayer(marker.marker);
+    }
+    userMarkers = userMarkers.filter(marker => marker.lat !== lat || marker.lng !== lng);
+    saveUserMarkers();
+    updatePlacesList();
+  }
+
+  // Initialize map with a default location (e.g., London)
+  const map = L.map('map', {
+    worldCopyJump: true
+  }).setView([51.505, -0.09], 13);
+
+  // Set map boundaries
+  const southWest = L.latLng(-90, -180); // Bottom-left corner of the world
+  const northEast = L.latLng(90, 180);   // Top-right corner of the world
+  const bounds = L.latLngBounds(southWest, northEast);
+
+  // Load OpenStreetMap tiles
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+
+  // Set maxBounds, maxZoom, and minZoom options
+  map.setMaxBounds(bounds); // Sets the maximum map extent
+  map.options.minZoom = 2;  // Minimum zoom level
+  map.options.maxZoom = 18; // Maximum zoom level
+
+  let userMarker;
+
+  // Load saved markers from localStorage
+  function loadUserMarkers() {
+    savedUserMarkers = JSON.parse(localStorage.getItem('userMarkers')) || [];
+    savedUserMarkers.forEach(markerData => {
+      const { lat, lng, name, placeName, isPOI } = markerData;
+      if (isPOI) {
+        addToUserList(lat, lng, name, placeName);
+      } else {
+        addCustomUserMarker(lat, lng, name, placeName);
+      }
+    });
+  }
+
+  // Save markers to localStorage
+  function saveUserMarkers() {
+    const markersToSave = userMarkers.map(marker => ({
+      lat: marker.lat,
+      lng: marker.lng,
+      name: marker.name,
+      placeName: marker.placeName || marker.description,
+      isPOI: marker.isPOI
+    }));
+    localStorage.setItem('userMarkers', JSON.stringify(markersToSave));
+    savedUserMarkers = [...markersToSave];
+  }
+
+  // Add marker to map and to the markers array
+  function addMarkerToMap(lat, lng, name, placeName) {
+    const userIcon = L.icon({
+      iconUrl: 'images/marker.svg', // Use the red marker icon for user-added markers
+      iconSize: [20, 32], // Smaller size
+      iconAnchor: [10, 32],
+      popupAnchor: [1, -34],
+    });
+
+    const marker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <b style="color: #ffd700;">${name}</b><br />
+        <b style="color: #ffd700;">${placeName}</b><br />
+        <button onclick="removeFromUserList(${lat}, ${lng})" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Delete</button>
+      </div>
+    `, { className: 'custom-popup' }).openPopup();
+
+    userMarkers.push({ lat, lng, name, placeName, marker });
+    updatePlacesList();
+    updateDropdowns();
+  }
+
+  // Update the list of places below the map
+  function updatePlacesList() {
+    const placesList = document.getElementById('placesList');
+    placesList.innerHTML = '';
+
+    userMarkers.forEach((marker, index) => {
+      const listItem = document.createElement('li');
+      listItem.innerHTML = `
+        <div>
+          <b>${marker.name}</b> - ${marker.placeName || marker.description}
+        </div>
+        <div class="button-container">
+          <button onclick="editMarker(${index})">Edit</button>
+          <button onclick="goToLocation(${marker.lat}, ${marker.lng}, ${index})">Go to Location</button>
+          <button onclick="removeFromUserList(${marker.lat}, ${marker.lng})">Delete</button>
+        </div>
+      `;
+      placesList.appendChild(listItem);
+    });
+
+    new Sortable(placesList, {
+      animation: 150,
+      onEnd: function (evt) {
+        const newOrder = Array.from(placesList.children).map(item => {
+          const name = item.querySelector('b').innerText;
+          return userMarkers.find(marker => marker.name === name);
+        });
+        userMarkers = newOrder;
+        saveUserMarkers();
+      }
+    });
+  }
+
+  // Update the dropdown menus for directions
+  function updateDropdowns() {
+    const startLocation = document.getElementById('startLocations');
+    const endLocation = document.getElementById('endLocations');
+
+    // Clear existing options
+    startLocation.innerHTML = '';
+    endLocation.innerHTML = '';
+
+    // Always add Current Location as the first option
+    const currentLocationOption = document.createElement('option');
+    currentLocationOption.value = 'Current Location';
+    currentLocationOption.textContent = 'Current Location';
+    startLocation.appendChild(currentLocationOption.cloneNode(true));
+    endLocation.appendChild(currentLocationOption);
+
+    // Combine markers and POI markers
+    const allLocations = [...userMarkers, ...poiMarkers]; // Changed from markers to userMarkers
+
+    // Add locations to both dropdowns
+    allLocations.forEach(location => {
+      const option = document.createElement('option');
+      option.value = location.name;
+      option.textContent = location.name;
+      startLocation.appendChild(option.cloneNode(true));
+      endLocation.appendChild(option);
+    });
+  }
+
+  // Function to add marker to itinerary
+  function addToItinerary(index) {
+    const marker = userMarkers[index];
+  }
+
+  // Function to open Wikipedia page for the location
+  function openWiki(placeName) {
+    const url = `https://en.wikipedia.org/wiki/${encodeURIComponent(placeName)}`;
+    window.open(url, '_blank');
+  }
+
+  // Function to open Google Maps directions to the location
+  function openDirections(lat, lng) {
+    const url = `transportation.php?start=${userMarker.getLatLng().lat},${userMarker.getLatLng().lng}&end=${lat},${lng}`;
+    window.open(url, '_blank');
+  }
+
+  // Function to go to a specific location on the map and show popup
+  function goToLocation(lat, lng, index) {
+    map.setView([lat, lng], 13);
+    const marker = userMarkers[index];
+    
+    // Check if the marker exists on the map 
+    if (marker && marker.marker) {
+      // If it's a POI marker, recreate it with the POI icon
+      if (poiMarkers.some(poi => poi.lat === marker.lat && poi.lng === marker.lng)) {
+        const poiIcon = L.icon({
+          iconUrl: 'images/poiMarker.svg',
+          iconSize: [20, 32],
+          iconAnchor: [10, 32],
+          popupAnchor: [1, -34],
+        });
+        marker.marker.setIcon(poiIcon);
+      } else {
+        // If it's a custom marker, use the red marker icon
+        const userIcon = L.icon({
+          iconUrl: 'images/marker.svg',
+          iconSize: [20, 32],
+          iconAnchor: [10, 32],
+          popupAnchor: [1, -34],
+        });
+        marker.marker.setIcon(userIcon);
+      }
+      marker.marker.openPopup();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Edit marker name
+  function editMarker(index) {
+    const marker = userMarkers[index]; // Changed from markers to userMarkers
+    const newName = prompt("Enter a new name for this location:", marker.name);
+    if (!newName) return;
+
+    marker.name = newName;
+    marker.marker.getPopup().setContent(`
+      <div style="text-align: center;">
+        <b style="color: #ffd700;">${newName}</b><br />
+        <b style="color: #ffd700;">${marker.placeName || marker.description}</b><br />
+        <button onclick="removeFromUserList(${marker.lat}, ${marker.lng})" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Delete</button>
+      </div>
+    `);
+    saveUserMarkers(); // Changed from saveMarkers
+    updatePlacesList();
+    updateDropdowns();
+  }
+
+  // Function to set user's location
+  function setUserLocation(position) {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    map.setView([lat, lon], 13);
+
+    if (userMarker) map.removeLayer(userMarker);
+
+    const icon = L.icon({
+      iconUrl: 'images/marker.svg',
+      iconSize: [20, 32], // Smaller size
+      iconAnchor: [10, 32],
+      popupAnchor: [1, -34],
+    });
+
+    userMarker = L.marker([lat, lon], { icon: icon })
+      .addTo(map)
+      .bindPopup('<b style="color: #ffd700;">Current Location</b>', { className: 'custom-popup' }).openPopup();
+  }
+
+  // Handle location errors
+  function locationError(error) {
+    console.error("Error getting location:", error.message);
+    alert("Geolocation failed. Using default location.");
+    map.setView([51.505, -0.09], 13); // Default to London if geolocation fails
+  }
+
+  // Get user location on page load and snap map to it
+  document.addEventListener("DOMContentLoaded", function () {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(setUserLocation, locationError);
+    } else {
+      alert("Geolocation is not supported by this browser.");
+      map.setView([51.505, -0.09], 13); // Default to London if geolocation is not supported
+    }
+    addPOIMarkers(); // Add POI markers to the map
+    loadUserMarkers(); // Remove loadMarkers() and just keep loadUserMarkers()
+    updatePlacesList(); // Update places list from local storage
+    updateDropdowns(); // Update dropdowns to include "Current Location"
+
+    new Sortable(document.getElementById('placesList'), {
+      animation: 150,
+      onEnd: function (evt) {
+        const newOrder = Array.from(document.getElementById('placesList').children).map(item => {
+          const name = item.querySelector('b').innerText;
+          return markers.find(marker => marker.name === name);
+        });
+        markers = newOrder;
+        saveMarkers();
+        updatePlacesList();
+      }
+    });
+  });
+
+  // Create search bar UI (aligned to the right of zoom controls)
+  function createSearchBar() {
+    const searchContainer = L.DomUtil.create('div', 'search-container');
+    searchContainer.style.display = 'flex';
+    searchContainer.style.alignItems = 'center';
+    searchContainer.style.marginLeft = '45px';
+    searchContainer.style.marginTop = '-85px';
+
+    searchContainer.innerHTML = `
+      <input type="text" id="locationSearch" placeholder="Search for a place..." style="padding: 5px; border: 2px solid #861818; border-radius: 5px 0 0 5px; outline: none;" />
+      <button id="searchButton" style="padding: 5px 10px; background-color: #861818; color: white; border: 2px solid #861818; border-radius: 0 5px 5px 0; cursor: pointer;">
+        <i class="fa fa-search" style="color: #ffd700;"></i>
+      </button>
+    `;
+
+    L.DomEvent.disableClickPropagation(searchContainer);
+    return searchContainer;
+  }
+
+  // Custom control for search bar (aligned right of zoom buttons)
+  const searchControl = L.control({ position: 'topleft' });
+  searchControl.onAdd = function () {
+    const container = L.DomUtil.create('div');
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    
+    container.appendChild(createSearchBar());
+
+    return container;
+  };
+  searchControl.addTo(map);
+
+  // Create "My Location" button (top-right)
+  const locationButton = L.control({ position: 'topright' });
+  locationButton.onAdd = function () {
+    const btn = L.DomUtil.create('button', 'location-button');
+    btn.innerHTML = '<i class="fa fa-location-arrow"></i>';
+    btn.title = "Go to my location";
+    btn.style.padding = "10px";
+    btn.style.background = "white";
+    btn.style.border = "2px solid #ccc";
+    btn.style.cursor = "pointer";
+    btn.style.borderRadius = "5px";
+
+    L.DomEvent.on(btn, 'click', L.DomEvent.stopPropagation);
+    L.DomEvent.on(btn, 'click', function () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setUserLocation, locationError);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    });
+
+    return btn;
+  };
+  locationButton.addTo(map);
+
+  // Function to handle search
+  function searchLocation() {
+    const query = document.getElementById("locationSearch").value.trim();
+    if (!query) return alert("Please enter a location.");
+
+    const hardCodedLocation = poiMarkers.find(poi => poi.name.toLowerCase() === query.toLowerCase());
+    if (hardCodedLocation) {
+      map.setView([hardCodedLocation.lat, hardCodedLocation.lng], 15); // Increase zoom level
+      const marker = userMarkers.find(marker => marker.name === hardCodedLocation.name);
+      if (marker) {
+        marker.marker.openPopup();
+      } else {
+        // Find the POI marker and open its popup
+        map.eachLayer(layer => {
+          if (layer instanceof L.Marker && layer.getLatLng().lat === hardCodedLocation.lat && layer.getLatLng().lng === hardCodedLocation.lng) {
+            layer.openPopup();
+          }
+        });
+      }
+      return;
+    }
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.length === 0) {
+          alert("Location not found.");
+          return;
+        }
+
+        const result = data[0];
+        const { lat, lon, display_name } = result;
+
+        const addressParts = display_name.split(', ');
+        const city = addressParts[0];
+        const country = addressParts[addressParts.length - 1];
+        const placeName = `${city}, ${country}`;
+
+        map.setView([lat, lon], 13);
+
+        if (searchMarker) {
+          map.removeLayer(searchMarker);
+        }
+
+        const icon = L.icon({
+          iconUrl: 'images/marker.svg',
+          iconSize: [20, 32], // Smaller size
+          iconAnchor: [10, 32],
+          popupAnchor: [1, -34],
+        });
+
+        searchMarker = L.marker([lat, lon], { icon: icon }).addTo(map);
+        searchMarker.bindPopup(`
+          <b style="color: #ffd700; text-align: center;">${placeName}</b><br />
+          <div style="text-align: center;">
+            <button onclick="addCustomMarker(${lat}, ${lon}, this)" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Add to My Map</button>
+          </div>
+        `, { className: 'custom-popup' }).openPopup();
+
+        searchMarker.on('popupclose', function() {
+          map.removeLayer(searchMarker);
+          searchMarker = null;
+        });
+      })
+      .catch(error => console.error("Error searching location:", error));
+  }
+
+  // Function to fetch suggested locations
+  function fetchSuggestions(query) {
+    // Filter POI markers first
+    const poiSuggestions = poiMarkers
+      .filter(poi => {
+        const searchQuery = query.toLowerCase();
+        return poi.name.toLowerCase().includes(searchQuery);
+      })
+      .map(poi => ({
+        name: poi.name,
+        type: 'poi'
+      }));
+
+    // Only fetch from API if we have less than 3 POI suggestions
+    if (poiSuggestions.length < 3) {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const apiSuggestions = data
+            .slice(0, 3 - poiSuggestions.length)
+            .map(item => ({
+              name: item.display_name,
+              type: 'location'
+            }));
+          showSuggestions([...poiSuggestions, ...apiSuggestions]);
+        })
+        .catch(error => console.error("Error fetching suggestions:", error));
+    } else {
+      showSuggestions(poiSuggestions);
+    }
+  }
+
+  function showSuggestions(suggestions) {
+    const suggestionsContainer = document.getElementById("suggestions");
+    suggestionsContainer.innerHTML = '';
+
+    suggestions.slice(0, 3).forEach(suggestion => {
+      const suggestionItem = document.createElement("div");
+      suggestionItem.className = "suggestion-item";
+      
+      suggestionItem.textContent = suggestion.name;
+
+      suggestionItem.onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById("locationSearch").value = suggestion.name;
+        suggestionsContainer.innerHTML = '';
+        searchLocation();
+      };
+      suggestionsContainer.appendChild(suggestionItem);
+    });
+  }
+
+  // Event listeners
+  document.addEventListener("DOMContentLoaded", function () {
+    loadUserMarkers();
+    document.getElementById("searchButton").addEventListener("click", searchLocation);
+    document.getElementById("locationSearch").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") searchLocation();
+    });
+
+    document.getElementById("switchButton").addEventListener("click", switchLocations);
+
+    document.getElementById("locationSearch").addEventListener("input", function (e) {
+        const query = e.target.value.trim();
+        if (query) {
+            fetchSuggestions(query);
+        } else {
+            document.getElementById("suggestions").innerHTML = '';
+        }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!document.getElementById("locationSearch").contains(e.target)) {
+        document.getElementById("suggestions").innerHTML = '';
+      }
+    });
+
+    const location = new URLSearchParams(window.location.search).get('location');
+    if (location) {
+      const matchedMarker = savedUserMarkers.find(marker => marker.name.toLowerCase() === location.toLowerCase());
+      if (matchedMarker) {
+        map.setView([matchedMarker.lat, matchedMarker.lng], 13);
+        matchedMarker.marker.openPopup();
+      } else {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (data.length === 0) {
+              alert("Location not found.");
+              return;
+            }
+
+            const result = data[0];
+            const { lat, lon, display_name } = result;
+
+            const addressParts = display_name.split(', ');
+            const city = addressParts[0];
+            const country = addressParts[addressParts.length - 1];
+            const placeName = `${city}, ${country}`;
+
+            map.setView([lat, lon], 13);
+
+            const icon = L.icon({
+              iconUrl: 'images/marker.svg',
+              iconSize: [20, 32], // Smaller size
+              iconAnchor: [10, 32],
+              popupAnchor: [1, -34],
+            });
+
+            if (searchMarker) {
+              map.removeLayer(searchMarker);
+            }
+
+            searchMarker = L.marker([lat, lon], { icon: icon }).addTo(map);
+            searchMarker.bindPopup(`
+              <b style="color: #ffd700; text-align: center;">${placeName}</b><br />
+              <div style="text-align: center;">
+                <button onclick="addCustomMarker(${lat}, ${lon}, this)" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Add to My Map</button>
+                <button onclick="removeCustomMarker(${lat}, ${lon}, this)" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Delete from Map</button>
+              </div>
+            `, { className: 'custom-popup' }).openPopup();
+          })
+          .catch(error => console.error("Error searching location:", error));
+      }
+    }
+
+    document.getElementById("directionsButton").addEventListener("click", getDirections);
+    document.getElementById("endLocation").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") getDirections();
+    });
+
+    new Sortable(document.getElementById('placesList'), {
+      animation: 150,
+      onEnd: function (evt) {
+        const newOrder = Array.from(document.getElementById('placesList').children).map(item => {
+          const name = item.querySelector('b').innerText;
+          return userMarkers.find(marker => marker.name === name);
+        });
+        userMarkers = newOrder;
+        saveUserMarkers();
+      }
+    });
+
+    document.getElementById("startLocation").addEventListener("input", updateDropdowns);
+    document.getElementById("endLocation").addEventListener("input", updateDropdowns);
+  });
+
+  map.on('click', function(e) {
+    // Prevent placing a marker when clicking on the map
+    if (e.originalEvent.target.classList.contains('leaflet-interactive')) {
+      return;
+    }
+
+    const { lat, lng } = e.latlng;
+
+    const icon = L.icon({
+      iconUrl: 'images/marker.svg',
+      iconSize: [20, 32], // Smaller size
+      iconAnchor: [10, 32],
+      popupAnchor: [1, -34],
+    });
+
+    const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <b style="color: #ffd700;">Pinned Location</b><br />
+        Coordinates: ${lat.toFixed(5)}, ${lng.toFixed(5)}<br />
+        <button onclick="addCustomMarker(${lat}, ${lng}, this)" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Add to My Map</button>
+      </div>
+    `, { className: 'custom-popup' }).openPopup();
+
+    map.on('popupclose', function() {
+      if (marker) {
+        map.removeLayer(marker);
+      }
+    });
+
+    if (searchMarker) {
+      map.removeLayer(searchMarker);
+      searchMarker = null;
+    }
+  });
+
+  function addCustomMarker(lat, lng, button) {
+    const customName = prompt("Enter a name for this location:");
+    if (!customName) return;
+
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const displayName = data.display_name;
+        const addressParts = displayName.split(', ');
+        const city = addressParts[0];
+        const country = addressParts[addressParts.length - 1];
+        const placeName = `${city}, ${country}`;
+
+        addCustomUserMarker(lat, lng, customName, placeName);
+
+        map.removeLayer(button.closest('.leaflet-popup')._source);
+      })
+      .catch(error => console.error("Error fetching location details:", error));
+  }
+
+  // Function to remove marker from the list below the map without deleting it from the map
+  function removeMarker(lat, lng) {
+    const marker = userMarkers.find(marker => marker.lat === lat && marker.lng === lng);
+    if (marker) {
+      marker.marker.bindPopup(`
+        <div style="text-align: center;">
+          <b style="color: #ffd700;">${marker.name}</b><br />
+          <b style="color: #ffd700;">${marker.description}</b>
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button onclick="addToUserList(${lat}, ${lng}, '${marker.name}', '${marker.description}')" style="background-color: #262626; color: #ffd700; border: none; cursor: pointer;">Add to My List</button>
+            <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(marker.name)}" target="_blank" style="color: #ffd700;">Wiki</a>
+          </div>
+        </div>
+      `, { className: 'custom-popup' }).openPopup();
+    }
+    userMarkers = userMarkers.filter(marker => marker.lat !== lat || marker.lng !== lng);
+    saveUserMarkers();
+    updatePlacesList();
+  }
+
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .custom-popup .leaflet-popup-content-wrapper {
+      background: #262626;
+      color: #ffd700;
+    }
+    .custom-popup .leaflet-popup-tip {
+      background: #262626;
+    }
+    .leaflet-routing-container {
+      background: #262626;
+      color: #ffd700;
+    }
+    .leaflet-routing-alt {
+      background: #262626;
+      color: #ffd700;
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.addEventListener('beforeunload', function (e) {
+    const markersChanged = JSON.stringify(userMarkers) !== JSON.stringify(savedUserMarkers);
+    if (markersChanged) {
+      const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
+      e.returnValue = confirmationMessage;
+      return confirmationMessage;
+    }
+  });
+
+  const saveButton = L.control({ position: 'topright' });
+  saveButton.onAdd = function () {
+    const btn = L.DomUtil.create('button', 'save-button');
+    btn.innerHTML = 'Save Markers';
+    btn.title = "Save Markers";
+    btn.style.padding = "10px";
+    btn.style.background = "#861818";
+    btn.style.color = "white";
+    btn.style.border = "2px solid #861818";
+    btn.style.cursor = "pointer";
+    btn.style.borderRadius = "5px";
+
+    L.DomEvent.on(btn, 'click', L.DomEvent.stopPropagation);
+    L.DomEvent.on(btn, 'click', function () {
+      saveUserMarkers();
+      updatePlacesList();
+    });
+
+    return btn;
+  };
+  saveButton.addTo(map);
+
+  function removeRoute() {
+    map.eachLayer(layer => {
+      if (layer instanceof L.Polyline && !layer._popup) {
+        map.removeLayer(layer);
+      }
+    });
+    tempMarkers.forEach(marker => map.removeLayer(marker));
+    tempMarkers = [];
+    map.closePopup();
+  }
+
+</script>
+
+  </section>
+
+  <!-- List of Places -->
+  <section id="places">
+    <h2>Saved Places</h2>
+    <ul id="placesList"></ul>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>&copy; 2025 Vestigia | All rights reserved.</p>
+  </footer>
+  <script src="main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-analytics.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyC5YgsuCupR2_eTSs_C11ke_tC4bmkxcgo",
+    authDomain: "vestigia-d0ef8.firebaseapp.com",
+    projectId: "vestigia-d0ef8",
+    storageBucket: "vestigia-d0ef8.firebasestorage.app",
+    messagingSenderId: "305308657645",
+    appId: "1:305308657645:web:7cadfcc55cd2754a15e9e4",
+    measurementId: "G-7H4P1V2X55"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app); // Initialize Firestore
+
+  async function loadPOIs() {
+  const poisRef = collection(db, "pois");
+  const snapshot = await getDocs(poisRef);
+
+  snapshot.forEach(doc => {
+    let poi = doc.data();
+    L.marker([poi.lat, poi.lng])
+      .addTo(map)
+      .bindPopup(`<b>${poi.name}</b><br>${poi.description}`);
+  });
+}
+
+loadPOIs();
+</script>
+
+</body>
+</html>

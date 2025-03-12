@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In - Vestigia</title>
+  <link rel="stylesheet" href="account.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+  <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
+  <script type="text/javascript" src="signupValidation.js" defer></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+  <script type="text/javascript" src="socialLogin.js" defer></script>
+  <script type="text/javascript" src="popup.js" defer></script>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body style="font-family: 'Open Sans', sans-serif; background-image: url('images/signupBackground.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+  <div class="wrapper">
+    <br><br>
+    <img src="images/vestigiaLogoBig.png" alt="Vestigia Logo" class="logo"><Br>
+    <form id="loginForm">
+      <div>
+        <input type="email" name="email" placeholder="Username or E-mail" id="email-input">
+      </div>
+      <div>
+        <input type="password" name="password" placeholder="Password" id="password-input">
+      </div>
+      <button type="submit">Log In</button>
+      <div class="social-login-container">
+        <button type="button" class="social-login google-login" id="googleLogin">
+          <i class="fab fa-google"></i> Log In with Google
+        </button>
+        <button type="button" class="social-login facebook-login" id="facebookLogin">
+          <i class="fab fa-facebook-f"></i> Log In with Facebook
+        </button>
+      </div>
+      <p><a href="#" class="forgot-password" id="forgotPasswordLink">Forgot your password?</a></p>
+      <p>Don't have an account with us? <a href="signup.html">Sign Up Here.</a><bR>&copy; 2025 Vestigia. All Rights Reserved.</p>
+    </form>
+    
+  </div>
+  
+  <div id="forgotPasswordPopup" class="popup">
+    <div class="popup-content">
+      <span class="close">&times;</span>
+      <h2>Forgot Password</h2>
+      <form id="forgotPasswordForm">
+        <div>
+          <input type="email" name="email" placeholder="Enter your email" id="forgotPasswordEmail">
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

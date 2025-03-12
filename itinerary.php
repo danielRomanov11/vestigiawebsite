@@ -1,0 +1,289 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['name']) && isset($_COOKIE['username'])) {
+    $_SESSION['name'] = $_COOKIE['username'];
+}
+?>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Itinerary - Vestigia</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
+    <link rel="stylesheet" href="itinerary.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+</head>
+<body style="font-family: 'Open Sans', sans-serif;">
+  <?php include "navbar.php"; ?>
+  
+  <section id="calendar-section">
+    <h2>My Itinerary</h2>
+    <div id="calendar-controls">
+      <select id="month-select"></select>
+      <select id="year-select"></select>
+    </div>
+    <div id="calendar">
+        <!-- Calendar will be rendered here -->
+    </div>
+  </section>
+
+  <!-- Add this section for the events list -->
+  <section id="events-list-section">
+    <h2>Events List</h2>
+    <ul id="events-list">
+      <!-- Events will be listed here -->
+    </ul>
+  </section>
+
+  <!-- Event Modal -->
+  <div id="event-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-title">Add New Event</h2>
+      <form id="event-form">
+        <label for="event-title">Event Title:</label>
+        <input type="text" id="event-title" name="event-title" required>
+        
+        <label for="event-location">Location:</label>
+        <input list="location-options" id="event-location" name="event-location">
+        <datalist id="location-options">
+          <!-- Options will be populated dynamically -->
+        </datalist>
+        
+        <label for="event-start-date">Start Date:</label>
+        <input type="date" id="event-start-date" name="event-start-date" required>
+        
+        <label for="event-start-time">Start Time:</label>
+        <input type="time" id="event-start-time" name="event-start-time">
+        
+        <label for="event-end-date">End Date:</label>
+        <input type="date" id="event-end-date" name="event-end-date">
+        
+        <label for="event-end-time">End Time:</label>
+        <input type="time" id="event-end-time" name="event-end-time">
+        
+        <label for="event-info">Additional Information:</label>
+        <textarea id="event-info" name="event-info"></textarea>
+        
+        <div class="button-container">
+          <button type="submit" id="save-button">Add Event</button>
+          <button type="button" id="delete-button" style="display: none;">Delete Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>&copy; 2025 Vestigia | All rights reserved.</p>
+  </footer>
+
+  <script src="main.js"></script>
+  <script>
+    $(document).ready(function() {
+      const monthSelect = $('#month-select');
+      const yearSelect = $('#year-select');
+      const currentYear = new Date().getFullYear();
+
+      for (let i = 0; i < 12; i++) {
+        monthSelect.append(new Option(moment().month(i).format('MMMM'), i));
+      }
+
+      for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+        yearSelect.append(new Option(i, i));
+      }
+
+      monthSelect.val(new Date().getMonth());
+      yearSelect.val(currentYear);
+
+      // Fetch location options from local storage
+      const locations = JSON.parse(localStorage.getItem('markers')) || [];
+      const locationOptions = $('#location-options');
+      locations.forEach(function(location) {
+        locationOptions.append(new Option(location.name, location.name));
+      });
+
+      // Fetch events from local storage
+      const events = JSON.parse(localStorage.getItem('events')) || [];
+
+      // Modal functionality
+      const modal = document.getElementById("event-modal");
+      const span = document.getElementsByClassName("close")[0];
+      const modalTitle = document.getElementById("modal-title");
+      const saveButton = document.getElementById("save-button");
+      const deleteButton = document.getElementById("delete-button");
+
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
+      // Add this new event listener to prevent the modal from closing when clicking inside the modal content
+      $('.modal-content').on('mousedown', function(event) {
+        event.stopPropagation();
+      });
+
+      // Ensure events are saved correctly in local storage
+      function saveEventsToLocalStorage(events) {
+        localStorage.setItem('events', JSON.stringify(events));
+        renderEventsList(events); // Render the events list after saving
+      }
+
+      // Generate a unique ID for each event
+      function generateEventId() {
+        return 'event-' + new Date().getTime();
+      }
+
+      // Ensure events are loaded correctly from local storage
+      function loadEventsFromLocalStorage() {
+        const events = JSON.parse(localStorage.getItem('events')) || [];
+        renderEventsList(events); // Render the events list after loading
+        return events;
+      }
+
+      function renderEventsList(events) {
+        const eventsList = $('#events-list');
+        eventsList.empty();
+        events.forEach(event => {
+          const listItem = $('<li></li>').text(`${event.title} - ${moment(event.start).format('MMMM Do YYYY, h:mm a')}`);
+          const buttonContainer = $('<div class="button-container"></div>');
+          const directionsButton = $('<button>Directions</button>').click(() => {
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.location)}`, '_blank');
+          });
+          const locationButton = $('<button>Location</button>').click(() => {
+            window.location.href = `map.php?location=${encodeURIComponent(event.location)}`;
+          });
+          buttonContainer.append(directionsButton, locationButton);
+          listItem.append(buttonContainer);
+          eventsList.append(listItem);
+        });
+      }
+
+      $('#calendar').fullCalendar({
+        editable: true,
+        events: loadEventsFromLocalStorage(),
+        selectable: true,
+        selectHelper: true,
+        header: {
+          left: '',
+          center: '',
+          right: ''
+        },
+        select: function(start, end) {
+          modalTitle.textContent = "Add New Event";
+          saveButton.textContent = "Add Event";
+          deleteButton.style.display = "none";
+          $('#event-start-date').val(moment(start).format('YYYY-MM-DD'));
+          modal.style.display = "block";
+          $('#event-form').off('submit').on('submit', function(e) {
+            e.preventDefault();
+            const title = $('#event-title').val();
+            const location = $('#event-location').val();
+            const startDate = $('#event-start-date').val();
+            const startTime = $('#event-start-time').val();
+            const endDate = $('#event-end-date').val();
+            const endTime = $('#event-end-time').val();
+            const info = $('#event-info').val();
+
+            if (startTime && !endTime) {
+              alert('Please fill in the end time.');
+              return;
+            }
+            if (!startTime && endTime) {
+              alert('Please fill in the start time.');
+              return;
+            }
+
+            if (title) {
+              const eventData = {
+                id: generateEventId(),
+                title: title,
+                start: startTime ? moment(startDate + 'T' + startTime).format() : moment(startDate).format(),
+                end: endDate ? (endTime ? moment(endDate + 'T' + endTime).format() : moment(endDate).format()) : null,
+                description: info,
+                location: location
+              };
+              $('#calendar').fullCalendar('renderEvent', eventData, true);
+              const events = loadEventsFromLocalStorage();
+              events.push(eventData);
+              saveEventsToLocalStorage(events); // Save events to local storage after adding
+              modal.style.display = "none";
+              $('#event-form')[0].reset();
+            }
+            $('#calendar').fullCalendar('unselect');
+          });
+        },
+        eventClick: function(event) {
+          modalTitle.textContent = "Edit Event";
+          saveButton.textContent = "Save Changes";
+          deleteButton.style.display = "block";
+          $('#event-title').val(event.title);
+          $('#event-location').val(event.location);
+          $('#event-start-date').val(moment(event.start).format('YYYY-MM-DD'));
+          $('#event-start-time').val(moment(event.start).format('HH:mm'));
+          $('#event-end-date').val(event.end ? moment(event.end).format('YYYY-MM-DD') : '');
+          $('#event-end-time').val(event.end ? moment(event.end).format('HH:mm') : '');
+          $('#event-info').val(event.description);
+          modal.style.display = "block";
+
+          $('#event-form').off('submit').on('submit', function(e) {
+            e.preventDefault();
+            event.title = $('#event-title').val();
+            event.location = $('#event-location').val();
+            event.start = $('#event-start-time').val() ? moment($('#event-start-date').val() + 'T' + $('#event-start-time').val()).format() : moment($('#event-start-date').val()).format();
+            event.end = $('#event-end-date').val() ? ($('#event-end-time').val() ? moment($('#event-end-date').val() + 'T' + $('#event-end-time').val()).format() : moment($('#event-end-date').val()).format()) : null;
+            event.description = $('#event-info').val();
+            $('#calendar').fullCalendar('updateEvent', event);
+            const events = loadEventsFromLocalStorage();
+            const eventIndex = events.findIndex(e => e.id === event.id);
+            if (eventIndex !== -1) {
+              events[eventIndex] = event;
+              saveEventsToLocalStorage(events); // Save events to local storage after updating
+            }
+            modal.style.display = "none"; // Close the modal window
+            $('#event-form')[0].reset(); // Reset the form
+          });
+
+          deleteButton.onclick = function() {
+            $('#calendar').fullCalendar('removeEvents', event.id);
+            const events = loadEventsFromLocalStorage();
+            const eventIndex = events.findIndex(e => e.id === event.id);
+            if (eventIndex !== -1) {
+              events.splice(eventIndex, 1);
+              saveEventsToLocalStorage(events); // Save events to local storage after deleting
+            }
+            modal.style.display = "none";
+          };
+        }
+      });
+
+      monthSelect.change(function() {
+        const selectedMonth = $(this).val();
+        const selectedYear = yearSelect.val();
+        $('#calendar').fullCalendar('gotoDate', new Date(selectedYear, selectedMonth));
+      });
+
+      yearSelect.change(function() {
+        const selectedYear = $(this).val();
+        const selectedMonth = monthSelect.val();
+        $('#calendar').fullCalendar('gotoDate', new Date(selectedYear, selectedMonth));
+      });
+    });
+  </script>
+</body>
+</html>
