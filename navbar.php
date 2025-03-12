@@ -7,7 +7,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    </head>
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="navbar.css">
+</head>
 <body>
 <!DOCTYPE HTML>
 <html>
@@ -19,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="icon" href="images/vestigiaLogo.png" type="image/png">
-   <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="navbar.css">
   </head>
   <body style="font-family: 'Open Sans', sans-serif;">
     <div class="navbar">

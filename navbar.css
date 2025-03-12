@@ -9,7 +9,7 @@
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 10000000000000000000; /* Ensure the navbar is in front of all content */
+  z-index: 1000; /* More reasonable z-index value */
   box-sizing: border-box; /* Ensure padding is included in the width */
   min-height: 60px; /* Set a minimum height for the navbar */
 }
