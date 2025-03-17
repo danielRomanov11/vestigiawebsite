@@ -9,35 +9,45 @@
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 1000; /* More reasonable z-index value */
-  box-sizing: border-box; /* Ensure padding is included in the width */
-  min-height: 60px; /* Set a minimum height for the navbar */
+  z-index: 1000000;
+  /* More reasonable z-index value */
+  box-sizing: border-box;
+  /* Ensure padding is included in the width */
+  min-height: 60px;
+  /* Set a minimum height for the navbar */
 }
 
 .navbar .logo img {
   height: 40px;
-  margin: 0px; /* Remove top margin */
+  margin: 0px;
+  /* Remove top margin */
   margin-top: 0px;
 }
 
 .navbar .search-container {
-  flex-grow: 1; /* Allow the search container to grow */
+  flex-grow: 1;
+  /* Allow the search container to grow */
   display: flex;
-  justify-content: center; /* Center the search bar */
+  justify-content: center;
+  /* Center the search bar */
   align-items: center;
-  margin: 10px 20px; /* Add margin to separate from logo and icons */
+  margin: 10px 20px;
+  /* Add margin to separate from logo and icons */
 }
 
 .navbar .search-bar {
-  width: 100%; /* Take full width of the container */
-  max-width: 500px; /* Limit the maximum width */
+  width: 100%;
+  /* Take full width of the container */
+  max-width: 500px;
+  /* Limit the maximum width */
   border-radius: 20px;
   padding: 15px 15px;
   font-size: 14px;
   background-color: #5a5a5a;
   color: white;
   transition: width 0.3s ease;
-  height: 40px; /* Match the height of the login button */
+  height: 40px;
+  /* Match the height of the login button */
 }
 
 .navbar .search-bar::placeholder {
@@ -52,7 +62,8 @@
 .nav-links {
   display: flex;
   list-style-type: none;
-  align-items: center; /* Align items vertically */
+  align-items: center;
+  /* Align items vertically */
 }
 
 .nav-item {
@@ -67,7 +78,8 @@
   text-decoration: none;
   font-size: 14px;
   transition: all 0.3s ease;
-  height: 40px; /* Set a consistent height for all navbar items */
+  height: 40px;
+  /* Set a consistent height for all navbar items */
 }
 
 .nav-link i {
@@ -76,7 +88,8 @@
 }
 
 .nav-link.active {
-  color: var(--highlight-color); /* Highlight color for active link */
+  color: #ffd700;
+  /* Highlight color for active link */
 }
 
 .nav-link.login-btn {
@@ -86,15 +99,20 @@
   border-radius: 20px;
   font-weight: bold;
   transition: background-color 0.3s ease, color 0.3s ease;
-  height: 40px; /* Set a consistent height for the login button */
+  height: 40px;
+  /* Set a consistent height for the login button */
   display: flex;
-  align-items: center; /* Center align items vertically */
-  justify-content: center; /* Center align items horizontally */
+  align-items: center;
+  /* Center align items vertically */
+  justify-content: center;
+  /* Center align items horizontally */
 }
 
 .nav-link.login-btn:hover {
-  background-color: var(--main-color); /* Slightly darker yellow for hover effect */
-  color: var(--main-color); /* Dark red text color on hover */
+  background-color: var(--main-color);
+  /* Slightly darker yellow for hover effect */
+  color: var(--main-color);
+  /* Dark red text color on hover */
 }
 
 .tooltip {
@@ -122,9 +140,12 @@
 
 .profile-btn:hover .dropdown-menu {
   display: block;
-  top: 100%; /* Adjusted to be closer to the profile icon */
-  left: 50%; /* Center align with the profile icon */
-  transform: translateX(-50%); /* Center align with the profile icon */
+  top: 100%;
+  /* Adjusted to be closer to the profile icon */
+  left: 50%;
+  /* Center align with the profile icon */
+  transform: translateX(-50%);
+  /* Center align with the profile icon */
 }
 
 .dropdown-menu {
@@ -165,20 +186,25 @@
 }
 
 .mobile-menu {
-  position: fixed; /* Change to fixed to ensure it stays within the viewport */
+  position: fixed;
+  /* Change to fixed to ensure it stays within the viewport */
   top: 0;
   left: 0;
   background-color: #1e1e1e;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
-  max-height: 80vh; 
-  overflow-y: auto; 
-  width: 100%; /* Ensure it takes the full width of the screen */
-  text-align: center; /* Center align the text */
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 100%;
+  /* Ensure it takes the full width of the screen */
+  text-align: center;
+  /* Center align the text */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center align the items */
-  justify-content: center; /* Center align vertically */
+  align-items: center;
+  /* Center align the items */
+  justify-content: center;
+  /* Center align vertically */
 }
 
 .mobile-menu.open {
@@ -187,18 +213,24 @@
 
 .mobile-links {
   list-style-type: none;
-  padding: 0; /* Remove padding */
-  margin: 0; /* Remove margin */
-  width: 100%; /* Ensure the links take the full width */
+  padding: 0;
+  /* Remove padding */
+  margin: 0;
+  /* Remove margin */
+  width: 100%;
+  /* Ensure the links take the full width */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center align the items */
+  align-items: center;
+  /* Center align the items */
 }
 
 .mobile-links li {
   margin: 20px 0;
-  padding: 0; /* Remove padding */
-  width: auto; /* Adjust width to auto */
+  padding: 0;
+  /* Remove padding */
+  width: auto;
+  /* Adjust width to auto */
 }
 
 .mobile-links a {
@@ -282,6 +314,7 @@ body.overlay-open {
 body.overlay-open .mobile-menu {
   transform: translateX(0);
 }
+
 /* Search Bar */
 .search-container {
   display: flex;
@@ -293,7 +326,8 @@ body.overlay-open .mobile-menu {
 .search-bar {
   border: none;
   border-radius: 20px;
-  height: 40px; /* Match the height of the login button */
+  height: 40px;
+  /* Match the height of the login button */
   font-size: 14px;
   width: 100%;
   max-width: 500px;
@@ -317,11 +351,13 @@ body.overlay-open .mobile-menu {
   display: flex;
   align-items: center;
   margin: 0 20px;
-  padding: 0; /* Ensure no extra padding */
+  padding: 0;
+  /* Ensure no extra padding */
 }
 
 .nav-links .search-bar {
-  width: 150px; /* Default width for desktop */
+  width: 150px;
+  /* Default width for desktop */
   border-radius: 20px;
   font-size: 14px;
 }
@@ -330,7 +366,8 @@ body.overlay-open .mobile-menu {
 .mobile-links .search-container {
   margin-top: 15px;
   margin-left: 20px;
-  padding: 0; /* Remove extra padding in mobile menu */
+  padding: 0;
+  /* Remove extra padding in mobile menu */
 }
 
 .mobile-links .search-bar {
@@ -351,7 +388,8 @@ body.overlay-open .mobile-menu {
   }
 
   .search-bar {
-    width: 200px; /* Expand search bar for mobile */
+    width: 200px;
+    /* Expand search bar for mobile */
   }
 
   .mobile-links .search-bar {
