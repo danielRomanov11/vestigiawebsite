@@ -424,6 +424,7 @@
 
   // Load saved markers from localStorage
   function loadUserMarkers() {
+    userMarkers = []; // Clear the userMarkers array before loading from local storage
     savedUserMarkers = JSON.parse(localStorage.getItem('userMarkers')) || [];
     savedUserMarkers.forEach(markerData => {
       const { lat, lng, name, placeName, isPOI } = markerData;
